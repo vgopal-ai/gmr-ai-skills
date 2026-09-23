@@ -18,7 +18,7 @@ This repo distributes skills as plain folders under `skills/<skill-name>/`. Inst
 
 ```powershell
 New-Item -ItemType Directory -Path "$env:USERPROFILE\.copilot\skills" -Force | Out-Null
-git clone https://github.com/<owner>/gmr-ai-skills.git "$env:TEMP\gmr-ai-skills"
+git clone https://github.com/vgopal-ai/gmr-ai-skills.git "$env:TEMP\gmr-ai-skills"
 Copy-Item -Path "$env:TEMP\gmr-ai-skills\skills\ado-story-creator" -Destination "$env:USERPROFILE\.copilot\skills\ado-story-creator" -Recurse -Force
 ```
 
@@ -26,11 +26,9 @@ Copy-Item -Path "$env:TEMP\gmr-ai-skills\skills\ado-story-creator" -Destination 
 
 ```bash
 mkdir -p ~/.copilot/skills
-git clone https://github.com/<owner>/gmr-ai-skills.git /tmp/gmr-ai-skills
+git clone https://github.com/vgopal-ai/gmr-ai-skills.git /tmp/gmr-ai-skills
 cp -R /tmp/gmr-ai-skills/skills/ado-story-creator ~/.copilot/skills/ado-story-creator
 ```
-
-Replace `<owner>` with this repository's actual owner/organization once known to you (see the repository URL provided by whoever shared this guide).
 
 ## Install for Claude Code instead
 
@@ -45,7 +43,7 @@ If your team wants the skill available to everyone who opens a specific reposito
 Instead of manually copying files, you can ask Copilot to do the install for you. Paste this into a Copilot Agent chat:
 
 ```text
-Install the `ado-story-creator` skill from https://github.com/<owner>/gmr-ai-skills at user scope for GitHub Copilot on this machine.
+Install the `ado-story-creator` skill from https://github.com/vgopal-ai/gmr-ai-skills at user scope for GitHub Copilot on this machine.
 
 Steps:
 1. Clone or fetch the `skills/ado-story-creator` folder from that repository (do not recreate it from scratch).

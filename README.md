@@ -2,13 +2,15 @@
 
 Centralized repository for **reusable AI coding skills** shared across GitHub Copilot, Claude Code, and future AI coding assistants. This repo initially focuses on **Azure DevOps (ADO)** and **data engineering** workflows.
 
+Repository: https://github.com/vgopal-ai/gmr-ai-skills
+
 ## What's in here
 
 | Skill | Purpose |
 |---|---|
 | [`ado-story-creator`](./skills/ado-story-creator/SKILL.md) | Draft, validate, create, and update Azure DevOps Boards work items (stories, tasks, bugs) from natural language, using an already-authorized ADO MCP server or Azure CLI. |
 
-Each skill lives under `skills/<skill-name>/` and follows the [Agent Skills](https://code.visualstudio.com/docs/copilot/copilot-customization) convention: a `SKILL.md` entry point plus optional `references/`, `examples/`, and `tests/` folders.
+Each skill lives under `skills/<skill-name>/` and follows the Agent Skills convention: a `SKILL.md` entry point plus optional `references/`, `examples/`, and `tests/` folders.
 
 ## Design principles
 
