@@ -1,0 +1,5 @@
+# One-prompt install
+
+Paste this into GitHub Copilot Agent mode:
+
+> Install and run the `gmr-dev-setup` skill from this repository. Set up my full GMR data-engineering environment. Detect what is already installed and configured, install only missing approved components, reuse existing GitHub/ADO/Databricks/SQL/Power BI connections and profiles, and never create duplicates. Prefer official vendor tooling and organization SSO/OAuth/MFA. Do not ask me for passwords in chat. Before changing anything, show me the pre-flight results and proposed setup plan and wait for my approval. During setup, pause only when I need to complete SSO/MFA, approve elevation, or approve a configuration change. Configure GitHub/ADO MCP, Databricks CLI/extension and Databricks MCP where approved, SQL extension and SQL MCP where approved, optional SSMS, Power BI Desktop/PBIP/Fabric API prerequisites and Power BI MCP where tenant-approved, plus the shared GMR skills. Validate all connections using read-only checks only and finish with a simple PASS/FAIL report. Do not deploy workloads, publish reports, or execute database writes as part of setup.
