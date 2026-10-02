@@ -1,0 +1,24 @@
+{
+  "name": "gmr-implementation-orchestrator",
+  "version": "1.0.0",
+  "modes": [
+    "PLAN",
+    "IMPLEMENT",
+    "RESUME"
+  ],
+  "approval_gates": [
+    "plan",
+    "code-review",
+    "deployment",
+    "production"
+  ],
+  "optional_skills": [
+    "gmr-dev-setup",
+    "gmr-adf-pipeline",
+    "gmr-databricks",
+    "gmr-sql",
+    "gmr-powerbi",
+    "gmr-implementation-handoff",
+    "ado-story-creator"
+  ]
+}
