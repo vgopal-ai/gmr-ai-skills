@@ -1,5 +1,4 @@
 # gmr-ai-skills
-
 Centralized repository for **reusable AI coding skills** shared across GitHub Copilot, Claude Code, and future AI coding assistants. This repo initially focuses on **Azure DevOps (ADO)** and **data engineering** workflows.
 
 Repository: https://github.com/vgopal-ai/gmr-ai-skills
@@ -9,9 +8,10 @@ Repository: https://github.com/vgopal-ai/gmr-ai-skills
 | Skill | Purpose |
 |---|---|
 | [`ado-story-creator`](./skills/ado-story-creator/SKILL.md) | Draft, validate, create, and update Azure DevOps Boards work items (stories, tasks, bugs) from natural language, using an already-authorized ADO MCP server or Azure CLI. |
+| [`gmr-dev-setup`](./.github/skills/gmr-dev-setup/README.md) | Detect, configure, and verify a GMR developer workstation with progressive resource discovery and approval. |
 | [`gmr-implementation-orchestrator`](./skills/gmr-implementation-orchestrator/SKILL.md) | Inspect story-linked and discovered artifacts, confirm inventory completeness, plan implementation, and coordinate approved domain skills with explicit safety gates. |
 
-Each skill lives under `skills/<skill-name>/` and follows the Agent Skills convention: a `SKILL.md` entry point plus optional `references/`, `examples/`, and `tests/` folders.
+Each skill has a `SKILL.md` entry point and may include its own README, references, examples, and tests. Skills currently live under `skills/<skill-name>/` or `.github/skills/<skill-name>/`.
 
 ## Design principles
 
