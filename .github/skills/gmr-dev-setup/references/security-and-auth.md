@@ -10,3 +10,6 @@
 8. Write capability may be detected, but no write operation should be used merely to prove setup.
 9. Admin/elevated operations require explicit human approval.
 10. Production access must never be silently added.
+11. Inspect existing authenticated connections and discover accessible targets before requesting target names or URLs.
+12. Ask only for target details that cannot be discovered or uniquely identified; never request passwords, PATs, client secrets, or MFA codes in chat.
+13. Never embed team-specific workspaces, servers, databases, projects, or repositories in shared skill defaults.

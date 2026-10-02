@@ -1,6 +1,6 @@
 ---
 name: gmr-dev-setup
-description: Set up, repair, and verify a GMR developer workstation for AI-assisted data engineering. Detects existing tools and connections, installs only missing approved components (GitHub/ADO MCP, Databricks CLI/extension/MCP, SQL extension/MCP, SSMS, Power BI/PBIP/Fabric prerequisites, GMR skills), pauses for approval and SSO/MFA, and finishes with read-only validation and a PASS/FAIL report.
+description: Run the full GMR data-engineering workstation setup by default when asked to run the setup skill, set up an environment, or install/configure the GMR dev environment. Checks GitHub, ADO, Databricks, SQL, Power BI/Fabric, VS Code extensions, MCPs, CLIs, and GMR skills; discovers accessible resources before asking for target details; reuses existing tools and connections; obtains one approval before installing missing components; pauses only for unavoidable user actions; and verifies the result. Explicit test, preflight, or check requests are read-only.
 ---
 
 # gmr-dev-setup
@@ -24,7 +24,7 @@ The skill can configure only the modules required by the selected profile or exp
 - Microsoft SQL Server VS Code extension
 - SQL MCP when available and approved
 - SSMS (optional human SQL client)
-- Power BI Desktop (optional)
+- Power BI Desktop (required for the default Full GMR Data Engineering profile)
 - PBIP / Power BI project support
 - Fabric / Power BI API prerequisites
 - Power BI MCP when available and tenant-approved
@@ -33,70 +33,93 @@ The skill can configure only the modules required by the selected profile or exp
 ## Operating principle
 Never assume every developer needs every tool.
 
-At the beginning, determine the requested profile:
+Choose the requested profile using this order:
 
-1. Full GMR Data Engineering
-2. ADF / Data Engineer
-3. Databricks Developer
-4. SQL Developer
-5. Power BI / BI Developer
-6. Custom setup
+1. Use a profile explicitly named by the user.
+2. Otherwise, use **Full GMR Data Engineering** for setup/install/configure/run requests.
+3. Use **Custom setup** only when the user explicitly limits the requested components.
 
-If the user's prompt already makes the required modules clear, do not ask them to pick a profile.
+Do not ask the user to choose a profile when the default applies. A request to test, preflight, inspect, or check setup is read-only and must not install or configure anything. A request to run, set up, install, configure, or repair the environment executes the setup workflow below.
+
+For the default Full GMR Data Engineering profile, check and configure GitHub, Azure DevOps, Databricks, SQL, Power BI/Fabric, VS Code extensions, MCP servers, CLIs, and shared GMR skills. Power BI Desktop and PBIP support are part of this profile; SSMS and Power BI MCP are conditional on availability, tenant approval, and user needs. Do not label any component NOT REQUIRED until the profile is selected and that component has actually been checked.
 
 ## Checkpoint 1 — Pre-flight discovery
 Before installing or modifying anything:
 
 1. Detect OS and shell.
 2. Check whether VS Code is installed.
-3. Check Git and GitHub tooling.
-4. Check existing MCP configuration and currently registered servers.
-5. Check Databricks extension, CLI, profiles, and authentication state.
-6. Check Microsoft SQL extension, saved SQL profiles, and SQL MCP if present.
-7. Check Azure CLI / Entra authentication when required.
-8. Check SSMS if requested or relevant.
-9. Check Power BI Desktop, PBIP support, Fabric/Power BI API prerequisites, and Power BI MCP if requested/available.
-10. Check which GMR skills are already installed.
+3. Check Git, GitHub CLI and authentication, GitHub MCP, and repository access.
+4. Check Azure DevOps MCP, CLI if used, authentication, and read access.
+5. Check all configured MCP servers by name and connectivity; never display or copy secret values.
+6. Check Databricks VS Code extension, CLI, profiles, authentication, and MCP availability.
+7. Check Microsoft SQL extension, SQL MCP, existing profiles/connections, and read-only permissions.
+8. Check Power BI Desktop in machine and user install locations, PBIP support, Fabric/Power BI API prerequisites, tenant support, and Power BI MCP availability.
+9. Check Azure CLI / Entra authentication when required, SSMS, and all other profile components.
+10. Check installed GMR skills and compare them with the shared repository.
+
+Use the local preflight script where available, but do not rely on PATH alone. Check documented machine-wide and user-scoped install locations, VS Code extension listings, MCP configuration, provider tools, and existing authenticated MCP connections. Resolve actual executable paths without changing PATH or configuration.
 
 Do not install or reconfigure anything during discovery.
 
-Produce a concise pre-flight report using PASS / MISSING / AUTH REQUIRED / NOT REQUIRED.
+### Resource discovery before questions
+Before asking for a workspace, server, organization, project, or repository, inspect saved profiles, existing connections, local configuration, and authenticated provider tools. Reuse a working connection and use it to discover accessible resources with harmless list/read operations whenever supported. Do not ask for a target that is already configured or can be uniquely discovered. If discovery returns multiple plausible targets, ask the user to select among those results rather than asking them to restate connection details.
+
+- **Databricks:** inspect existing CLI profiles and MCP connections, verify available profiles, and list accessible workspaces/catalogs where supported. If no usable profile or unique authorized workspace can be discovered, ask: “Please provide the Databricks workspace URL you are authorized to use, or select an existing profile.” Authenticate only through organizational SSO/OAuth/MFA.
+- **SQL:** inspect existing SQL MCP connections, saved profiles, and authenticated SQL connections first. If no usable connection identifies the required target, ask only for the SQL server name, database name, and authentication type. Prefer Microsoft Entra authentication where appropriate. Never ask for a password in chat.
+- **GitHub:** inspect GitHub MCP/CLI authentication and discover accessible organizations and repositories first. If the requested repository cannot be determined, ask for the GitHub organization and repository name or URL. Never ask for a generic workspace URL.
+- **Azure DevOps:** reuse the existing ADO connection and discover accessible organizations/projects first. Ask for the organization and project name or URL only when the requested target cannot be discovered or uniquely identified.
+- **Power BI / Fabric:** when required by the selected profile or task, discover accessible workspaces using existing authenticated connections. Ask for the workspace name or URL only when the intended workspace cannot be determined. Do not require workspace configuration for profiles or tasks that do not need it.
+
+Never guess a target, create a duplicate connection to avoid discovery, or globally hard-code a team-specific workspace URL, SQL server/database, Power BI workspace, ADO project, or GitHub repository. Users and teams may have different access.
+
+If required target details remain unavailable after discovery, put only those details under **Needs user input** in the setup summary and ask for them before requesting setup approval. Once supplied, finish discovery and show the approval summary; do not ask for details that can be discovered through the selected connection.
+
+Determine each component's actual state as READY, MISSING, AUTH REQUIRED, or BLOCKED / ADMIN REQUIRED. NOT REQUIRED is allowed only for an optional component after profile selection and an actual check.
+
+Present sweep results compactly. Report tools and target resources separately so a working CLI does not imply a configured workspace or database connection. Use `PASS` for ready, `MISSING` for absent or unconfigured, and `AUTH REQUIRED` / `BLOCKED` where appropriate. Do not add narrative around the status list unless it explains a blocker or user action.
 
 Example:
 
 ```text
-VS Code                     PASS
-Git                         PASS
-GitHub MCP                  PASS
-ADO MCP                     PASS
-Databricks CLI              PASS
-Databricks OAuth            AUTH REQUIRED
-Databricks MCP              NOT REQUIRED
-SQL extension               PASS
-SQL MCP                     MISSING
-SSMS                        NOT REQUIRED
-Power BI Desktop            NOT REQUIRED
-GMR skills                  1 UPDATE AVAILABLE
+Current state
+GitHub: PASS
+ADO: PASS
+Databricks CLI: PASS
+Databricks workspace: MISSING
+SQL connection: MISSING
+Power BI: MISSING
+
+Needs user input
+- Databricks workspace URL or existing profile
+- SQL server, database, and authentication type
+
+Proposed actions
+- Configure Databricks workspace
+- Configure SQL connection
+- Install Power BI Desktop
+
+Approve installation and configuration of the missing required components?
 ```
 
-## Checkpoint 2 — Setup plan and approval
-After discovery, show exactly what the skill intends to install or change.
+## Checkpoint 2 — One approval
+After discovery, derive the minimal changes yourself. Do not ask the user to prepare or approve a detailed setup plan. Show the compact `Current state` and `Proposed actions` sections above. Include `Needs user input`, `Needs authentication`, and `Blocked/admin-required` sections only when they are non-empty. Keep entries to one line per component/action, and identify only target details that discovery could not find or uniquely resolve.
 
-The plan must include:
+Then ask exactly:
 
-- tools to install
-- extensions to install
-- MCP servers to configure
-- user-level configuration files that will change
-- authentication steps the human will need to complete
-- whether any machine restart or VS Code reload is expected
-- anything that requires organization/admin permission
+**Approve installation and configuration of the missing required components?**
 
-Then ask:
+Do not install software, change configuration, or create connections until the user approves. This is the only general setup approval; after it, continue automatically wherever possible.
 
-**Approve this setup plan?**
+## Setup execution order
+Follow this order for setup and repair requests:
 
-Do not proceed without explicit approval.
+1. Detect the local environment and selected profile.
+2. Reuse existing working tools, profiles, connections, and authentication.
+3. Discover accessible resources through those connections.
+4. Ask only for required target details that remain missing or ambiguous.
+5. Show the concise current-state/action summary and obtain the one setup approval.
+6. Configure approved missing components; pause only for unavoidable SSO/MFA, browser authorization, admin approval, or another user action. Verify access after authentication.
+7. Continue remaining setup automatically, then run read-only end-to-end verification and report PASS/FAIL.
 
 ## Installation rules
 
@@ -115,7 +138,7 @@ The skill may launch or request official browser/SSO authentication flows.
 
 The skill must never ask the user to paste a password into Copilot chat.
 
-Pause when MFA/SSO/browser authorization is required and clearly tell the user what is happening.
+Pause only when human MFA/SSO, browser authorization, admin approval, or another unavoidable user action is required. Clearly say which product needs the action and why. Continue the remaining setup automatically after the user completes it; do not restart discovery or ask for another general approval.
 
 After authentication, verify the session before continuing.
 
@@ -144,7 +167,7 @@ Rules:
 - Prefer organization OAuth/unified authentication over hard-coded PATs.
 - Reuse existing named profiles.
 - Do not recreate a working profile.
-- Configure Databricks MCP only when requested/available/approved.
+- Check Databricks MCP availability for the selected profile; configure it when supported and approved.
 - If MCP depends on an existing CLI OAuth session or approved local proxy, reuse it instead of creating a second credential set.
 - A working SQL MCP endpoint does not imply notebook/job/workspace administration capability; preserve the CLI for those operations.
 
@@ -233,9 +256,10 @@ Examples:
 - never INSERT/UPDATE/DELETE/DDL during setup validation
 
 ### Power BI
-- verify Desktop installation if requested
+- verify Desktop and PBIP support for the selected profile
 - verify project/tool/API prerequisites
 - verify tenant/workspace authentication only when configured
+- verify Power BI MCP only when available and approved
 - do not publish or alter a report merely to validate setup
 
 ## Checkpoint 4 — Final report
@@ -253,9 +277,9 @@ Databricks authentication  PASS
 Databricks MCP             PASS / NOT REQUIRED
 SQL extension              PASS
 SQL MCP                    PASS / NOT REQUIRED
-SSMS                       PASS / NOT REQUIRED
-Power BI Desktop           PASS / NOT REQUIRED
-Power BI automation        PASS / NOT REQUIRED
+SSMS                       PASS / NOT REQUIRED (only after checking)
+Power BI Desktop / PBIP     PASS / FAIL / AUTH REQUIRED / BLOCKED
+Power BI automation        PASS / FAIL / AUTH REQUIRED / BLOCKED / NOT REQUIRED (only after checking)
 GMR skills                 PASS
 
 Ready for:
@@ -263,13 +287,13 @@ Ready for:
 ✓ Databricks development
 ✓ SQL data work
 ✓ ADO automation
-✓ Power BI development (if selected)
+✓ Power BI/Fabric development
 ```
 
 For failures, explain only the blocking item and the next action.
 
 ## Repair mode
-If the user says "repair my GMR setup", rerun discovery and fix only broken or expired components.
+If the user says "repair my GMR setup", rerun environment and resource discovery and fix only broken, expired, or missing components required by the selected profile. Reuse working tools, profiles, connections, and discovered targets; do not reinstall working tools or create duplicate connections.
 
 Examples:
 - expired Databricks OAuth -> reauthenticate only Databricks
@@ -279,12 +303,7 @@ Examples:
 Do not reinstall the entire environment.
 
 ## Safety boundaries
-Always require explicit human approval before:
-- installing software that changes the workstation
-- modifying MCP configuration
-- altering existing working profiles
-- requesting admin/elevated privileges
-- enabling a new write-capable connection
+Require the single setup approval before installing missing components or changing configuration. After that approval, proceed without repeated general approvals. Never alter an existing working profile/connection or enable database writes as part of setup. Pause only for human authentication, browser authorization, elevation/admin approval, or another unavoidable user action.
 
 Never:
 - capture or persist passwords
@@ -299,8 +318,8 @@ Never:
 
 ## Completion condition
 The skill is complete only when:
-1. requested modules are installed/configured,
+1. all possible requested modules are installed/configured,
 2. required authentication is verified,
 3. read-only validation succeeds,
 4. the user receives a final PASS/FAIL report,
-5. no unresolved setup action is hidden.
+5. every unavailable component is explicitly identified with its required user/admin action.
