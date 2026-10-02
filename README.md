@@ -1,5 +1,4 @@
 # gmr-ai-skills
-
 Centralized repository for **reusable AI coding skills** shared across GitHub Copilot, Claude Code, and future AI coding assistants. This repo initially focuses on **Azure DevOps (ADO)** and **data engineering** workflows.
 
 Repository: https://github.com/vgopal-ai/gmr-ai-skills
