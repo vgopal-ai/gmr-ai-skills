@@ -9,6 +9,7 @@ Repository: https://github.com/vgopal-ai/gmr-ai-skills
 | Skill | Purpose |
 |---|---|
 | [`ado-story-creator`](./skills/ado-story-creator/SKILL.md) | Draft, validate, create, and update Azure DevOps Boards work items (stories, tasks, bugs) from natural language, using an already-authorized ADO MCP server or Azure CLI. |
+| [`gmr-implementation-orchestrator`](./skills/gmr-implementation-orchestrator/SKILL.md) | Inspect story-linked and discovered artifacts, confirm inventory completeness, plan implementation, and coordinate approved domain skills with explicit safety gates. |
 
 Each skill lives under `skills/<skill-name>/` and follows the Agent Skills convention: a `SKILL.md` entry point plus optional `references/`, `examples/`, and `tests/` folders.
 
